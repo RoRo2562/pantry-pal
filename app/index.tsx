@@ -7,7 +7,7 @@ export default function Index() {
       style={styles.container}
     >
       <Text>Hello Expo</Text>
-      <Link href={"/about"} style = {styles.button}> Go to about</Link>
+      <Link href={"/barcode"} style = {styles.button}> Go to barcode</Link>
     </View>
   );
 }

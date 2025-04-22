@@ -1,8 +1,10 @@
 import { Tabs } from "expo-router";
 
-export default function RootLayout() {
+export default function TabLayout() {
   return <Tabs >
-    <Tabs.Screen name="(tabs)" options={{headerTitle: "PantryPal", headerLeft: ()=> <></>} }/>
-    <Tabs.Screen name="about" />
+      <Tabs.Screen name="index" />
+      <Tabs.Screen name="pantry" />
+      <Tabs.Screen name="recipes" />
+      <Tabs.Screen name="barcode" />
     </Tabs>;
 }

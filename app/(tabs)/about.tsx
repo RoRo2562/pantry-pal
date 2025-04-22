@@ -7,7 +7,7 @@ export default function About() {
       style={styles.container}
     >
       <Text>This is about</Text>
-      <Link href={"/about"} style = {styles.button}> Go to about</Link>
+      <Link href={"/barcode"} style = {styles.button}> Go to about</Link>
     </View>
   );
 }
