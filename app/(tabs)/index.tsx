@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#faedcd"
+    backgroundColor: "#FEFAE0"
   },
   button: {
     fontSize: 20,

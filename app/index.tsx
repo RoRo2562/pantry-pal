@@ -1,14 +1,9 @@
 import { Text, View, StyleSheet } from "react-native";
-import { Link } from "expo-router";
+import { Link, Redirect } from "expo-router";
 
 export default function Index() {
   return (
-    <View
-      style={styles.container}
-    >
-      <Text>Hello Expo</Text>
-      <Link href={"/barcode"} style = {styles.button}> Go to barcode</Link>
-    </View>
+    <Redirect href="/(auth)/login" />
   );
 }
 
