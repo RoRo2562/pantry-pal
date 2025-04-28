@@ -13,8 +13,12 @@ export default defineSchema({
 
     pantry: defineTable({
         userId: v.id("users"),
-        pantryType: v.union(v.literal("pantry"),v.literal("fridge"),v.literal("freezer"),v.literal("freshbox")),
-    }).index("by_user",["userId"]),
+        pantryType: v.union(
+            v.literal("pantry"),
+            v.literal("fridge"),
+            v.literal("freezer"),
+            v.literal("freshbox")),
+    }).index("by_user_and_type",["userId","pantryType"]),
 
     pantryItems: defineTable({
         userId: v.id("users"),
