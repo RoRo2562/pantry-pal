@@ -1,5 +1,5 @@
 import { View, Text, FlatList } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { Link, useLocalSearchParams } from 'expo-router';
 import { useUser } from '@clerk/clerk-expo';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api'; // Adjust the path to your api
@@ -20,6 +20,7 @@ export default function PantryItemsScreen() {
       <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 16 }}>
         {pantryType} Items
       </Text>
+      <Link href={'/(tabs)/pantry/addItem'}/>
       {pantryItems.length === 0 ? (
         <Text>No items in this {pantryType} yet.</Text>
       ) : (

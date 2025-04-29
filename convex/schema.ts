@@ -11,26 +11,31 @@ export default defineSchema({
         clerkId: v.string()
     }).index("by_clerk_id",["clerkId"]),
 
-    pantry: defineTable({
+    // pantry: defineTable({
+    //     userId: v.id("users"),
+    //     pantryType: v.union(
+    //         v.literal("pantry"),
+    //         v.literal("fridge"),
+    //         v.literal("freezer"),
+    //         v.literal("freshbox")),
+    // }).index("by_user_and_type",["userId","pantryType"]),
+
+    pantryItems: defineTable({
         userId: v.id("users"),
         pantryType: v.union(
             v.literal("pantry"),
             v.literal("fridge"),
             v.literal("freezer"),
             v.literal("freshbox")),
-    }).index("by_user_and_type",["userId","pantryType"]),
-
-    pantryItems: defineTable({
-        userId: v.id("users"),
-        pantryId: v.id("pantry"),
         iconUrl: v.string(),
         storageId:v.id("_storage"),
         title: v.string(),
         expiryDate: v.string(),
         quantityValue: v.number(),
         quantityUnit: v.string(),
-        food: v.id("foods")
-    }).index("by_pantry",["pantryId"]),
+        foodId: v.id("foodItems")
+    }).index("by_user_and_type",["userId","pantryType"])
+    .index("by_expiry_date",["expiryDate"]),
 
     notifications: defineTable({
         receiverId: v.id("users"),
@@ -38,4 +43,26 @@ export default defineSchema({
         type: v.union(v.literal("pantry"),v.literal("fridge"),v.literal("freezer"),v.literal("freshbox")),
         pantryType: v.string()
     }).index("by_user",["receiverId"]),
+
+    foodItems: defineTable({
+        name: v.string(),           // Required: Name of the food item
+        barcode: v.optional(v.string()), // Optional: Store the barcode (if available)
+        brand: v.optional(v.string()),     // Optional: Brand name
+        imageUrl: v.optional(v.string()),    // Optional: URL to an image
+        ingredients: v.optional(v.string()),
+        calories: v.optional(v.number()), // Optional: Caloric content
+        protein: v.optional(v.number()),  // Optional: Protein content
+        fat: v.optional(v.number()),      // Optional: Fat content
+        carbohydrates: v.optional(v.number()), // Optional: Carbohydrate content
+        fiber: v.optional(v.number()),   // Optional: Fiber content
+        sugar: v.optional(v.number()),   // Optional: Sugar content
+        sodium: v.optional(v.number()),  // Optional: Sodium content
+        vitamins: v.optional(v.string()), // Optional: Vitamins present
+        minerals: v.optional(v.string()), // Optional: Minerals present
+        allergens: v.optional(v.string()), // Optional: Allergens present
+        // Add other relevant food properties as needed:
+        // - category (e.g., "produce", "dairy", "canned")
+        // - unit (e.g., "piece", "gram", "ml")  - if you want to standardize units
+        // - description
+    }).index("by_barcode", ["barcode"]),
 })

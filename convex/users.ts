@@ -1,6 +1,6 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { initializeUserPantries } from "./pantry";
+// import { initializeUserPantries } from "./pantry";
 import { Id } from "./_generated/dataModel";
 import { api } from "./_generated/api";
 
@@ -32,7 +32,7 @@ export const createUser = mutation({
             clerkId:args.clerkId,
             image:args.image
         });
-        await context.runMutation(api.pantry.initializeUserPantries, { userId: userId });
+        // await context.runMutation(api.pantry.initializeUserPantries, { userId: userId });
 
         return userId; // Return the user ID
     }
