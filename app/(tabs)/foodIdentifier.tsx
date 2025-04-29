@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, View, Image, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
-const GOOGLE_VISION_API_KEY = 'AIzaSyAyRot5JwKaVjztuB8KhhPvPk7XcjWZ8iw';
+const GOOGLE_VISION_API_KEY = '';
 
 const FoodVision = () => {
   const [image, setImage] = useState(null);
