@@ -50,19 +50,17 @@ export default defineSchema({
         brand: v.optional(v.string()),     // Optional: Brand name
         imageUrl: v.optional(v.string()),    // Optional: URL to an image
         ingredients: v.optional(v.string()),
-        calories: v.optional(v.number()), // Optional: Caloric content
-        protein: v.optional(v.number()),  // Optional: Protein content
-        fat: v.optional(v.number()),      // Optional: Fat content
-        carbohydrates: v.optional(v.number()), // Optional: Carbohydrate content
-        fiber: v.optional(v.number()),   // Optional: Fiber content
-        sugar: v.optional(v.number()),   // Optional: Sugar content
-        sodium: v.optional(v.number()),  // Optional: Sodium content
-        vitamins: v.optional(v.string()), // Optional: Vitamins present
-        minerals: v.optional(v.string()), // Optional: Minerals present
-        allergens: v.optional(v.string()), // Optional: Allergens present
-        // Add other relevant food properties as needed:
-        // - category (e.g., "produce", "dairy", "canned")
-        // - unit (e.g., "piece", "gram", "ml")  - if you want to standardize units
-        // - description
+        calories: v.optional(v.string()), // Optional: Caloric content
+        protein: v.optional(v.string()),
+        fat: v.optional(v.string()),
+        carbohydrates: v.optional(v.string()),
+        salt: v.optional(v.string()),
+        saturatedFat: v.optional(v.string()),
+        sodium: v.optional(v.string()),
+        sugars: v.optional(v.string()),
+        fiber: v.optional(v.string()),
+        calcium: v.optional(v.string()),
+        iron: v.optional(v.string()),
+        potassium: v.optional(v.string()),
     }).index("by_barcode", ["barcode"]),
 })

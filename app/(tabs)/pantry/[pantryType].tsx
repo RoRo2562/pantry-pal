@@ -1,8 +1,10 @@
-import { View, Text, FlatList } from 'react-native';
+import { View, Text, FlatList, Button } from 'react-native';
 import { Link, useLocalSearchParams } from 'expo-router';
 import { useUser } from '@clerk/clerk-expo';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api'; // Adjust the path to your api
+import BarcodeScannerModal from '../barcode';
+import { useState } from 'react';
 
 export default function PantryItemsScreen() {
   const { pantryType } = useLocalSearchParams();
@@ -10,6 +12,8 @@ export default function PantryItemsScreen() {
   const pantryItems = useQuery(api.pantry.getByUserAndType, {
     pantryType: pantryType as "pantry" | "fridge" | "freezer" | "freshbox", // Type cast for safety
   });
+
+
 
   if (!pantryItems) {
     return <Text>Loading pantry items...</Text>;
@@ -20,6 +24,7 @@ export default function PantryItemsScreen() {
       <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 16 }}>
         {pantryType} Items
       </Text>
+
       <Link href={'/(tabs)/pantry/addItem'}/>
       {pantryItems.length === 0 ? (
         <Text>No items in this {pantryType} yet.</Text>

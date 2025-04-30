@@ -1,15 +1,54 @@
 import { CameraView, CameraType, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import { useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View, Alert, ScrollView, Image } from 'react-native';
-import { SvgUri } from 'react-native-svg'; // Install react-native-svg-uri
+import { Button, StyleSheet, Text, TouchableOpacity, View, Alert, Modal, ActivityIndicator } from 'react-native';
+import { SvgUri } from 'react-native-svg'; // Ensure this is installed: npm install react-native-svg
 import { useNavigation } from '@react-navigation/native';
 
-export default function App() {
+interface ProductData {
+  quantity?: string;
+  nutriments?: any; // Define a more specific type if you have the API model
+  ingredients_text?: string;
+  nutriscore_grade?: string;
+}
+
+interface AddFoodItemForm {
+  name: string;
+  barcode?: string;
+  brand?: string;
+  imageUrl?: string;
+  ingredients?: string;
+  calories?: string; // Changed to number | undefined
+  protein?: string | undefined;
+  fat?: string | undefined;
+  carbohydrates?: string | undefined;
+  fiber?: string | undefined;
+  sugars?: string | undefined;
+  sodium?: string | undefined;
+  salt?: string;
+  saturatedFat?: string;
+  calcium?: string;
+  iron?: string;
+  potassium?: string;
+}
+
+const BarcodeScannerModal = ({
+  isVisible,
+  onClose,
+  onBarcodeScanned,
+  hasCameraPermission
+}: {
+  isVisible: boolean;
+  onClose: () => void;
+  onBarcodeScanned: (data: AddFoodItemForm) => void;
+  hasCameraPermission: boolean | null;
+}) => {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
-  const [nutriscore, setNutriscore] = useState('');
-  const [datap, setDatap] = useState<any>(null); // Use a proper type if you have OpenFoodFacts API model
+  const [nutriscoreUri, setNutriscoreUri] = useState<string | null>(null);
+  const [datap, setDatap] = useState<ProductData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigation = useNavigation<any>();
 
   if (!permission) {
@@ -30,128 +69,211 @@ export default function App() {
   }
 
   const handleBarcodeScanned = async ({ data }: BarcodeScanningResult) => {
+    if (scanned) return; // Prevent multiple scans
+
     try {
       setScanned(true);
-      
+      setLoading(true);
+      setError(null);
+
       const response = await fetch(`https://world.openfoodfacts.org/api/v2/product/${data}.json`);
       const result = await response.json();
-      // console.log(result.product.product_quantity)
-      // console.log(result.product.product_quantity_unit)
-      console.log(result.product.quantity)
-      console.log(result.product.nutriments)
-      console.log(result.product.ingredients_text)
-      setDatap(result.product);
-      setNutriscore(`https://static.openfoodfacts.org/images/misc/nutriscore-${result.product.nutriscore_grade}-new-en.svg`);
-    } catch (error) {
+      const foodItem: AddFoodItemForm = {
+        name: result.product?.product_name,
+        barcode: result.code,
+        brand: result.product.brands || '',
+        imageUrl: result.product.image_url || '',
+        ingredients: result.product.ingredients_text || '',
+        calories: result.product.nutriments?.['energy-kcal_100g'] + "kcal" || undefined,
+        protein: result.product.nutriments?.proteins_100g || undefined,
+        fat: result.product.nutriments?.fat_100g || undefined,
+        carbohydrates: result.product.nutriments?.carbohydrates_100g || undefined,
+        salt: result.product.nutriments?.salt_100g || undefined,
+        saturatedFat: result.product.nutriments?.saturated_fat_100g || undefined,
+        sodium: result.product.nutriments?.sodium_100g || undefined,
+        sugars: result.product.nutriments?.sugars_100g || undefined,
+        fiber: result.product.nutriments?.fiber_100g || undefined,
+        calcium: result.product.nutriments?.calcium_100g || undefined,
+        iron: result.product.nutriments?.iron_100g || undefined,
+        potassium: result.product.nutriments?.potassium_100g || undefined,
+      }
+      onBarcodeScanned(foodItem); // Pass the raw barcode data to the parent
+
+      if (result.status === 1 && result.product) {
+        // console.log(result.product.quantity);
+        // console.log(result.product.nutriments);
+        // console.log(result.product.ingredients_text);
+        setDatap(result.product);
+        if (result.product.nutriscore_grade) {
+          setNutriscoreUri(`https://static.openfoodfacts.org/images/misc/nutriscore-${result.product.nutriscore_grade}-new-en.svg`);
+        } else {
+          setNutriscoreUri(null); // Or some default/message
+        }
+      } else {
+        setError("Product not found.");
+      }
+    } catch (error: any) {
       console.error(error);
-      Alert.alert("Error", "Failed to fetch product data.");
+      setError("Failed to fetch product data.");
+    } finally {
+      setLoading(false);
     }
   };
 
   const rescan = () => {
     setScanned(false);
     setDatap(null);
-    setNutriscore('');
+    setNutriscoreUri(null);
+    setError(null);
   };
 
   return (
-    <View style={styles.container}>
-      <CameraView
-        style={styles.camera}
-        facing={facing}
-        onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
-        barcodeScannerSettings={{
-          barcodeTypes: ['upc_a', 'upc_e'],
-        }}
-      >
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.text}>Flip Camera</Text>
-          </TouchableOpacity>
-        </View>
-      </CameraView>
+    <Modal visible={isVisible} animationType="slide">
+      <View style={{ flex: 1 }}>
+        {permission?.granted && (
+          <CameraView
+            style={styles.camera}
+            facing={facing}
+            onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
+            barcodeScannerSettings={{
+              barcodeTypes: ['upc_a', 'upc_e'],
+            }}
+          />
+        )}
+        <View style={styles.overlay}>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.flipButton} onPress={toggleCameraFacing}>
+              <Text style={styles.text}>Flip Camera</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <Text style={styles.text}>Close</Text>
+            </TouchableOpacity>
+          </View>
 
-      <ScrollView>
-        <View style={styles.contentContainer}>
-          {datap ? (
-            <View>
-              <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", marginBottom: 10 }}>
-                {datap.image_url && (
-                  <Image source={{ uri: datap.image_url }} resizeMode='contain' style={{ width: 200, height: 200 }} />
-                )}
-                {datap.image_ingredients_url && (
-                  <Image source={{ uri: datap.image_ingredients_url }} resizeMode='contain' style={{ width: 200, height: 200 }} />
-                )}
-              </View>
-              <Text style={styles.bigt}>{datap.product_name}</Text>
-              <Text style={styles.bigt}>Nutriscore: {datap.nutriscore_grade?.toUpperCase()}</Text>
-              <View style={{ justifyContent: "center", alignItems: "center", marginBottom: 5 }}>
-                {nutriscore && (
-                  <SvgUri uri={nutriscore} width="150" height="50" />
-                )}
-              </View>
-              <Text>Protein per 100g: {datap.nutriments.proteins_100g}</Text>
-              <Text>Kj per : {datap.nutriments["energy-kj_100g"]}</Text>
-              <Text>Quantity: {datap.quantity}</Text>
-            </View>
-          ) : (
-            <Text>No product data available.</Text>
-          )}
-
-          {scanned && (
-            <View style={styles.mb}>
-              <Button title="Tap to Scan Again" onPress={rescan} />
+          {loading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#fff" />
+              <Text style={styles.loadingText}>Loading...</Text>
             </View>
           )}
-
-          {datap && (
-            <Button title="More Details" onPress={() => navigation.navigate("Product", { datap })} />
+          {error && (
+            <View style={styles.errorContainer}>
+              <Text style={styles.errorText}>{error}</Text>
+              <TouchableOpacity style={styles.rescanButton} onPress={rescan}>
+                <Text style={styles.text}>Rescan</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          {datap && !loading && !error && (
+            <View style={styles.productInfoContainer}>
+              <Text style={styles.productInfoText}>Quantity: {datap.quantity || 'N/A'}</Text>
+              <Text style={styles.productInfoText}>Ingredients: {datap.ingredients_text || 'N/A'}</Text>
+              {nutriscoreUri && <SvgUri width={80} height={40} uri={nutriscoreUri} />}
+              <TouchableOpacity style={styles.rescanButton} onPress={rescan}>
+                <Text style={styles.text}>Rescan</Text>
+              </TouchableOpacity>
+            </View>
           )}
         </View>
-      </ScrollView>
-    </View>
+      </View>
+    </Modal>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  message: {
-    textAlign: 'center',
-    paddingBottom: 10,
+  modalCloseButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#e0e0e0',
+    borderRadius: 8,
+    alignSelf: 'center',
+  },
+  closeButtonText: {
+    color: '#000'
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'space-between', // Push content to edges
+    alignItems: 'center',
+    paddingBottom: 20, // Add some padding at the bottom
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    marginTop: 200,
+  },
+  loadingText: {
+    color: '#fff',
+    marginTop: 10,
+    fontSize: 18,
+  },
+  errorContainer: {
+    backgroundColor: 'rgba(255,0,0,0.8)',
+    padding: 10,
+    borderRadius: 8,
+    margin: 20,
+    alignItems: 'center',
+  },
+  errorText: {
+    color: '#fff',
+    fontSize: 16,
+    textAlign: 'center'
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    marginTop: 20,
+    width: '100%',
+  },
+  flipButton: {
+    backgroundColor: '#3b82f6',
+    padding: 10,
+    borderRadius: 8,
+  },
+  closeButton: {
+    backgroundColor: '#e0e0e0',
+    padding: 10,
+    borderRadius: 8,
+  },
+  text: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  rescanButton: {
+    backgroundColor: '#3b82f6',
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 20,
   },
   camera: {
     flex: 1,
   },
-  buttonContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    margin: 64,
-  },
-  button: {
-    flex: 1,
-    alignSelf: 'flex-end',
+  productInfoContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    padding: 20,
+    borderRadius: 10,
+    marginHorizontal: 20,
+    marginTop: 20,
     alignItems: 'center',
   },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
+  productInfoText: {
+    fontSize: 16,
+    marginBottom: 10,
+    textAlign: 'center',
   },
   container: {
     flex: 1,
-    flexDirection: "column",
-    justifyContent: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  mb: {
-    padding: 10,
-  },
-  contentContainer: {
-    flex: 1,
-    padding: 16,
-  },
-  bigt: {
-    fontSize: 20,
-    textAlign: "center",
+  // Add this missing style:
+  message: {
+    fontSize: 18,
+    textAlign: 'center',
     marginBottom: 20,
+    paddingHorizontal: 20,
   },
 });
+
+export default BarcodeScannerModal;
