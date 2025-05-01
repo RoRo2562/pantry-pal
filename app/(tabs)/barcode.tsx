@@ -13,22 +13,22 @@ interface ProductData {
 
 interface AddFoodItemForm {
   name: string;
-  barcode?: string;
-  brand?: string;
-  imageUrl?: string;
-  ingredients?: string;
-  calories?: string; // Changed to number | undefined
-  protein?: string | undefined;
-  fat?: string | undefined;
-  carbohydrates?: string | undefined;
-  fiber?: string | undefined;
-  sugars?: string | undefined;
-  sodium?: string | undefined;
-  salt?: string;
-  saturatedFat?: string;
-  calcium?: string;
-  iron?: string;
-  potassium?: string;
+    barcode?: string;
+    brand?: string;
+    imageUrl?: string;
+    ingredients?: string;
+    calories?: string; // Changed to number | undefined
+    protein?: number | undefined;
+    fat?: number | undefined;
+    carbohydrates?: number | undefined;
+    fiber?: number | undefined;
+    sugars?: number | undefined;
+    sodium?: number | undefined;
+    salt?: number;
+    saturatedFat?: number;
+    calcium?: number;
+    iron?: number;
+    potassium?: number;
 }
 
 const BarcodeScannerModal = ({

@@ -10,17 +10,17 @@ export const addFood = mutation({
     imageUrl: v.optional(v.string()),    // Optional: URL to an image
     ingredients: v.optional(v.string()),
     calories: v.optional(v.string()), // Optional: Caloric content
-    protein: v.optional(v.string()),
-    fat: v.optional(v.string()),
-    carbohydrates: v.optional(v.string()),
-    salt: v.optional(v.string()),
-    saturatedFat: v.optional(v.string()),
-    sodium: v.optional(v.string()),
-    sugars: v.optional(v.string()),
-    fiber: v.optional(v.string()),
-    calcium: v.optional(v.string()),
-    iron: v.optional(v.string()),
-    potassium: v.optional(v.string()),
+    protein: v.optional(v.number()),
+    fat: v.optional(v.number()),
+    carbohydrates: v.optional(v.number()),
+    salt: v.optional(v.number()),
+    saturatedFat: v.optional(v.number()),
+    sodium: v.optional(v.number()),
+    sugars: v.optional(v.number()),
+    fiber: v.optional(v.number()),
+    calcium: v.optional(v.number()),
+    iron: v.optional(v.number()),
+    potassium: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     // In a real app, you might want to check if the food item exists

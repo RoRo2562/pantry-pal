@@ -7,6 +7,7 @@ import { Id } from '@/convex/_generated/dataModel';
 import { Picker } from '@react-native-picker/picker';
 import { useUser } from '@clerk/clerk-expo';
 import BarcodeScannerModal from './barcode';
+import { COLORS } from '@/constants/theme';
 
 interface AddFoodItemForm {
     name: string;
@@ -15,17 +16,17 @@ interface AddFoodItemForm {
     imageUrl?: string;
     ingredients?: string;
     calories?: string; // Changed to number | undefined
-    protein?: string | undefined;
-    fat?: string | undefined;
-    carbohydrates?: string | undefined;
-    fiber?: string | undefined;
-    sugars?: string | undefined;
-    sodium?: string | undefined;
-    salt?: string;
-    saturatedFat?: string;
-    calcium?: string;
-    iron?: string;
-    potassium?: string;
+    protein?: number | undefined;
+    fat?: number | undefined;
+    carbohydrates?: number | undefined;
+    fiber?: number | undefined;
+    sugars?: number | undefined;
+    sodium?: number | undefined;
+    salt?: number;
+    saturatedFat?: number;
+    calcium?: number;
+    iron?: number;
+    potassium?: number;
 }
 
 
@@ -45,11 +46,11 @@ export default function AddFoodItemScreen() {
         fiber: undefined,
         sugars: undefined,
         sodium: undefined,
-        salt: '',
-        saturatedFat: '',
-        calcium: '',
-        iron: '',
-        potassium: '',
+        salt: undefined,
+        saturatedFat: undefined,
+        calcium: undefined,
+        iron: undefined,
+        potassium: undefined,
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isBarcodeModalVisible, setIsBarcodeModalVisible] = useState(false);
@@ -138,11 +139,11 @@ export default function AddFoodItemScreen() {
                   fiber: undefined,
                   sugars: undefined,
                   sodium: undefined,
-                  salt: '',
-                  saturatedFat: '',
-                  calcium: '',
-                  iron: '',
-                  potassium: '',
+                  salt: undefined,
+                  saturatedFat: undefined,
+                  calcium: undefined,
+                  iron: undefined,
+                  potassium: undefined,
                 });
             } else {
                 Alert.alert('Error', 'Failed to add food item.');
@@ -387,17 +388,14 @@ export default function AddFoodItemScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f0f4f8',
+        backgroundColor: COLORS.background,
         padding: 20,
     },
     formContainer: {
-        backgroundColor: 'white',
+        
         borderRadius: 12,
         padding: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
+        
         elevation: 3,
     },
     title: {
@@ -419,6 +417,7 @@ const styles = StyleSheet.create({
     input: {
         borderWidth: 1,
         borderColor: '#ddd',
+        backgroundColor: '#fff',
         borderRadius: 8,
         padding: 12,
         fontSize: 16,
