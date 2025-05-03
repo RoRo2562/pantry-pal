@@ -1,8 +1,8 @@
 import { CameraView, CameraType, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
 import { useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View, Alert, Modal, ActivityIndicator } from 'react-native';
-import { SvgUri } from 'react-native-svg'; // Ensure this is installed: npm install react-native-svg
-import { useNavigation } from '@react-navigation/native';
+import { Button, StyleSheet, Text, TouchableOpacity, View, Alert, Modal, ActivityIndicator,Image } from 'react-native';
+
+
 
 interface ProductData {
   quantity?: string;
@@ -49,7 +49,6 @@ const BarcodeScannerModal = ({
   const [datap, setDatap] = useState<ProductData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const navigation = useNavigation<any>();
 
   if (!permission) {
     return <View />;
@@ -168,7 +167,7 @@ const BarcodeScannerModal = ({
             <View style={styles.productInfoContainer}>
               <Text style={styles.productInfoText}>Quantity: {datap.quantity || 'N/A'}</Text>
               <Text style={styles.productInfoText}>Ingredients: {datap.ingredients_text || 'N/A'}</Text>
-              {nutriscoreUri && <SvgUri width={80} height={40} uri={nutriscoreUri} />}
+              {nutriscoreUri && <Image width={80} height={40} source={{uri:nutriscoreUri}} />}
               <TouchableOpacity style={styles.rescanButton} onPress={rescan}>
                 <Text style={styles.text}>Rescan</Text>
               </TouchableOpacity>
