@@ -6,7 +6,7 @@ import { Camera } from 'expo-camera';
 import { Id } from '@/convex/_generated/dataModel';
 import { Picker } from '@react-native-picker/picker';
 import { useUser } from '@clerk/clerk-expo';
-import BarcodeScannerModal from './barcode';
+import BarcodeScannerModal from '../../components/barcode';
 import { COLORS } from '@/constants/theme';
 
 interface AddFoodItemForm {

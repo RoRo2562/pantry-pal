@@ -19,6 +19,11 @@ export default defineSchema({
     //         v.literal("freezer"),
     //         v.literal("freshbox")),
     // }).index("by_user_and_type",["userId","pantryType"]),
+    icons: defineTable({
+        name: v.string(), // e.g., "pork", "beef", "chicken"
+        url: v.string(), // The URL of the icon
+        category: v.optional(v.string()), // Optional category, e.g., "food", "pantry"
+      }),
 
     pantryItems: defineTable({
         userId: v.id("users"),

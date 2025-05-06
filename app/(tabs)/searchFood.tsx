@@ -3,6 +3,9 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, FlatList, I
 // Import the interface
 import { COLORS } from '@/constants/theme';
 import FoodDetailsModal from '@/components/FoodDetailsModal';
+import BarcodeScannerModal from '@/components/BarcodeModal';
+import { Ionicons } from '@expo/vector-icons';
+import BarcodeModal from '@/components/barcode';
 
 
 export interface AddFoodItemForm {
@@ -33,6 +36,7 @@ const FoodSearch = ({ onSelectFood }: { onSelectFood: (foodItem: AddFoodItemForm
     const [hasMore, setHasMore] = useState(true); // Track if there are more results to load
     const [loadingMore, setLoadingMore] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isBarcodeScannerVisible, setIsBarcodeScannerVisible] = useState(false);
     const [selectedFoodItem, setSelectedFoodItem] = useState<AddFoodItemForm | null>(null);
 
     const handleSearchByName = async (newPage: number = 1) => {
@@ -121,6 +125,10 @@ const FoodSearch = ({ onSelectFood }: { onSelectFood: (foodItem: AddFoodItemForm
         setSelectedFoodItem(null);
     };
 
+    const handleCloseBarcodeScanner = () => {
+        setIsBarcodeScannerVisible(false);
+    };
+
     const renderItem = useCallback(
         ({ item }: { item: AddFoodItemForm }) => (
             <TouchableOpacity style={styles.searchResultItem} onPress={() => selectSearchResult(item)}>
@@ -158,6 +166,13 @@ const FoodSearch = ({ onSelectFood }: { onSelectFood: (foodItem: AddFoodItemForm
         );
     };
 
+    function handleBarcodeScanned(data: AddFoodItemForm): void {
+        setSelectedFoodItem(data);
+        setIsBarcodeScannerVisible(false);
+        selectSearchResult(data); // Pass the scanned data to the parent component
+        setIsModalVisible(true); // Show the food details modal
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.inputGroup}>
@@ -174,6 +189,15 @@ const FoodSearch = ({ onSelectFood }: { onSelectFood: (foodItem: AddFoodItemForm
                     }} // Trigger search on Enter key
                     returnKeyType="search"
                 />
+                <TouchableOpacity >
+                    <Ionicons
+                        name="barcode"
+                        size={24}
+                        color="black"
+                        onPress={() => setIsBarcodeScannerVisible(true)}
+                        style={{ position: 'absolute', right: 10, top: 12 }} // Adjust position as needed
+                    />
+                </TouchableOpacity>
             </View>
 
             {isSearching && (
@@ -199,6 +223,12 @@ const FoodSearch = ({ onSelectFood }: { onSelectFood: (foodItem: AddFoodItemForm
                 isVisible={isModalVisible}
                 onClose={handleCloseModal}
                 foodItem={selectedFoodItem}
+            />
+
+            <BarcodeModal
+                isVisible={isBarcodeScannerVisible}
+                onClose={handleCloseBarcodeScanner}
+                onBarcodeScanned={handleBarcodeScanned}
             />
         </View>
     );

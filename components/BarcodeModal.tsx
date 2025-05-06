@@ -1,54 +1,52 @@
 import { CameraView, CameraType, useCameraPermissions, BarcodeScanningResult } from 'expo-camera';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { Button, StyleSheet, Text, TouchableOpacity, View, Alert, Modal, ActivityIndicator,Image } from 'react-native';
 
 
-
-interface ProductData {
-  quantity?: string;
-  nutriments?: any; // Define a more specific type if you have the API model
-  ingredients_text?: string;
-  nutriscore_grade?: string;
+interface ModalProps {
+    isVisible: boolean;
+    onClose: () => void;
+    onBarcodeScanned: (data: AddFoodItemForm) => void;
 }
 
 interface AddFoodItemForm {
-  name: string;
+    name: string;
     barcode?: string;
     brand?: string;
     imageUrl?: string;
     ingredients?: string;
     calories?: string; // Changed to number | undefined
-    protein?: number | undefined;
-    fat?: number | undefined;
-    carbohydrates?: number | undefined;
-    fiber?: number | undefined;
-    sugars?: number | undefined;
-    sodium?: number | undefined;
-    salt?: number;
-    saturatedFat?: number;
-    calcium?: number;
-    iron?: number;
-    potassium?: number;
+    protein?: string | undefined;
+    fat?: string | undefined;
+    carbohydrates?: string | undefined;
+    fiber?: string | undefined;
+    sugars?: string | undefined;
+    sodium?: string | undefined;
+    salt?: string;
+    saturatedFat?: string;
+    calcium?: string;
+    iron?: string;
+    potassium?: string;
 }
 
-const BarcodeScannerModal = ({
+const BarcodeScannerModal: React.FC<ModalProps>  = ({
   isVisible,
   onClose,
   onBarcodeScanned,
-  hasCameraPermission
 }: {
   isVisible: boolean;
   onClose: () => void;
   onBarcodeScanned: (data: AddFoodItemForm) => void;
-  hasCameraPermission: boolean | null;
 }) => {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [nutriscoreUri, setNutriscoreUri] = useState<string | null>(null);
-  const [datap, setDatap] = useState<ProductData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (!isVisible) return null;
 
   if (!permission) {
     return <View />;
@@ -102,7 +100,7 @@ const BarcodeScannerModal = ({
         // console.log(result.product.quantity);
         // console.log(result.product.nutriments);
         // console.log(result.product.ingredients_text);
-        setDatap(result.product);
+
         if (result.product.nutriscore_grade) {
           setNutriscoreUri(`https://static.openfoodfacts.org/images/misc/nutriscore-${result.product.nutriscore_grade}-new-en.svg`);
         } else {
@@ -121,65 +119,66 @@ const BarcodeScannerModal = ({
 
   const rescan = () => {
     setScanned(false);
-    setDatap(null);
     setNutriscoreUri(null);
     setError(null);
   };
 
   return (
-    <Modal visible={isVisible} animationType="slide">
-      <View style={{ flex: 1 }}>
-        {permission?.granted && (
-          <CameraView
-            style={styles.camera}
-            facing={facing}
-            onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
-            barcodeScannerSettings={{
-              barcodeTypes: ['upc_a', 'upc_e'],
-            }}
-          />
-        )}
-        <View style={styles.overlay}>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.flipButton} onPress={toggleCameraFacing}>
-              <Text style={styles.text}>Flip Camera</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <Text style={styles.text}>Close</Text>
-            </TouchableOpacity>
-          </View>
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={isVisible}
+                onRequestClose={onClose}
+            >
+                {/* <View style={styles.modalOverlay}> */}
+                    <View style={styles.modalContent}>
+                        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                                    <Ionicons name="close" color="black" size={24} />
+                        </TouchableOpacity>
+                        <View style={styles.modalInnerContent}>
+                            {permission?.granted && (
+                                <View style={{ flex: 1}}>
+                                <CameraView
+                                    style={styles.camera}
+                                    facing={facing}
+                                    onBarcodeScanned={scanned ? undefined : handleBarcodeScanned}
+                                    barcodeScannerSettings={{
+                                    barcodeTypes: ['upc_a', 'upc_e'],
+                                    }}
+                                />
+                            {/* <TouchableOpacity style={styles.flipButton} onPress={toggleCameraFacing}>
+                                <Text style={styles.text}>Flip Camera</Text>
+                            </TouchableOpacity> */}
+                            </View>
+                            )}
 
-          {loading && (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#fff" />
-              <Text style={styles.loadingText}>Loading...</Text>
-            </View>
-          )}
-          {error && (
-            <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
-              <TouchableOpacity style={styles.rescanButton} onPress={rescan}>
-                <Text style={styles.text}>Rescan</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          {datap && !loading && !error && (
-            <View style={styles.productInfoContainer}>
-              <Text style={styles.productInfoText}>Quantity: {datap.quantity || 'N/A'}</Text>
-              <Text style={styles.productInfoText}>Ingredients: {datap.ingredients_text || 'N/A'}</Text>
-              {nutriscoreUri && <Image width={80} height={40} source={{uri:nutriscoreUri}} />}
-              <TouchableOpacity style={styles.rescanButton} onPress={rescan}>
-                <Text style={styles.text}>Rescan</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-      </View>
-    </Modal>
+                    {/* {loading && (
+                        <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="#fff" />
+                        <Text style={styles.loadingText}>Loading...</Text>
+                        </View>
+                    )} */}
+                    {/* {error && (
+                        <View style={styles.errorContainer}>
+                        <Text style={styles.errorText}>{error}</Text>
+                        <TouchableOpacity style={styles.rescanButton} onPress={rescan}>
+                            <Text style={styles.text}>Rescan</Text>
+                        </TouchableOpacity>
+                        </View>)} */}
+                        </View> 
+                    </View>
+                {/* </View> */}
+            </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
   modalCloseButton: {
     marginTop: 20,
     padding: 10,
@@ -190,13 +189,24 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: '#000'
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'space-between', // Push content to edges
-    alignItems: 'center',
-    paddingBottom: 20, // Add some padding at the bottom
-  },
+  modalContent: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 8,
+    padding: 20,
+    width: '90%',
+    maxHeight: '80%',
+    overflowY: 'auto',
+    position: 'relative',
+},
+closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 10,
+},
+modalInnerContent: {
+    width: '100%',
+},
   loadingContainer: {
     alignItems: 'center',
     marginTop: 200,
@@ -230,11 +240,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 8,
   },
-  closeButton: {
-    backgroundColor: '#e0e0e0',
-    padding: 10,
-    borderRadius: 8,
-  },
   text: {
     color: '#fff',
     fontSize: 16,
@@ -247,19 +252,7 @@ const styles = StyleSheet.create({
   },
   camera: {
     flex: 1,
-  },
-  productInfoContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    padding: 20,
-    borderRadius: 10,
-    marginHorizontal: 20,
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  productInfoText: {
-    fontSize: 16,
-    marginBottom: 10,
-    textAlign: 'center',
+
   },
   container: {
     flex: 1,

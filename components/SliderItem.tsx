@@ -18,7 +18,7 @@ export default function SliderItem({item, index,scrollX}: Props) {
 
     const handlePantryNavigate = () => {
         if(user){
-            router.push(`/(tabs)/pantry/${item.title.toLowerCase()}`);
+            router.push(`/pantry/${item.title.toLowerCase()}`);
         }else{
             router.push('/(auth)/login');
         }

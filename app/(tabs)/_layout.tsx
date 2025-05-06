@@ -39,13 +39,7 @@ export default function TabLayout() {
           paddingTop: 0, paddingBottom: 50
         }
       }}/>
-      <Tabs.Screen name="barcode" options={{
-        tabBarIcon: ({size,color}) => <Ionicons name="barcode" size={size} color={color}/>,
-        sceneStyle:{
-          backgroundColor: COLORS.background,
-          paddingTop: 0, paddingBottom: 50
-        }
-      }}/>
+      
       <Tabs.Screen name="searchFood" options={{
         tabBarIcon: ({size,color}) => <Ionicons name="search" size={size} color={color}/>,
         sceneStyle:{
