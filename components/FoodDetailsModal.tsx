@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView , Image} from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AddFoodItemForm } from '@/app/(tabs)/searchFood';
+import { AddFoodItemForm } from '@/app/pantry/[pantryType]/searchFood';
 
 
 interface FoodDetailsModalProps {
     isVisible: boolean;
     onClose: () => void;
     foodItem: AddFoodItemForm | null;
+    onConfirm: () => void;
 }
 
-const FoodDetailsModal: React.FC<FoodDetailsModalProps> = ({ isVisible, onClose, foodItem }) => {
+const FoodDetailsModal: React.FC<FoodDetailsModalProps> = ({ isVisible, onClose, foodItem, onConfirm }) => {
     const [localFoodItem, setLocalFoodItem] = useState<any | null>(foodItem);
 
     useEffect(() => {
@@ -54,7 +55,11 @@ const FoodDetailsModal: React.FC<FoodDetailsModalProps> = ({ isVisible, onClose,
                     <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                         <Ionicons name="close" color="black" size={24} />
                     </TouchableOpacity>
+                    
                     <ScrollView style={styles.modalInnerContent}>
+                    <TouchableOpacity style={{flex:1}} onPress={onConfirm}>
+                        <Ionicons name="home" color="black" size={24} />
+                    </TouchableOpacity>
                         {localFoodItem && (
                             <>
                                 {localFoodItem.imageUrl && (

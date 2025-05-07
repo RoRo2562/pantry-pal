@@ -1,26 +1,65 @@
 import { View, Text, TouchableOpacity,StyleSheet, TextInput,Image, ScrollView } from 'react-native'
-import React, { useState } from 'react'
-import { router, useRouter } from 'expo-router'
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import { router, useLocalSearchParams, useRouter } from 'expo-router'
 import { COLORS } from '@/constants/theme';
 import { Ionicons, FontAwesome, EvilIcons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import IconModal from '@/components/IconModal';
 import { iconOptions } from '@/constants/data';
+import RNDateTimePicker from '@react-native-community/datetimepicker';
 
+// Create the context
+export const PantryContext = createContext<{
+  selectedItem: string;
+  setSelectedItem: (name: string) => void;
+  selectedBarcode: string;
+  setSelectedBarcode: (barcode: string) => void;
+} | null>(null);
+
+
+// Create a Provider for the context
+export const PantryProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [selectedItem, setSelectedItem] = useState('');
+  const [selectedBarcode,setSelectedBarcode] = useState('')
+
+  const contextValue = {
+    selectedItem,
+    setSelectedItem,
+    selectedBarcode,
+    setSelectedBarcode
+  };
+
+  return (
+    <PantryContext.Provider value={contextValue}>
+      {children}
+    </PantryContext.Provider>
+  );
+};
+
+// Custom hook to use the context
+export const usePantry = () => {
+  const context = useContext(PantryContext);
+  if (!context) {
+    throw new Error('usePantry must be used within a PantryProvider');
+  }
+  return context;
+};
 
 
 export default function AddToPantry() {
   const router = useRouter();
+  const { selectedItem, setSelectedItem,selectedBarcode,setSelectedBarcode} = usePantry();
 
   const [formData, setFormData] = useState({
     name: '',
     barcode: '',
-    expiryDate: '',
+    expiryDate: new Date(),
     iconUrl: '@/assets/images/pork.png',
     
   });
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(iconOptions[0]);
+  const [selectedDate, setSelectedDate] = useState<Date>(formData.expiryDate);
 
   const handleImageSelect = (image:{name:string,uri:any}) => {
     setSelectedImage(image);
@@ -35,7 +74,24 @@ export default function AddToPantry() {
       ...prevFormData,
       [field]: value,
     }));
+    console.log(formData)
   }
+
+  function handleFoodSelect(food: any) {
+    handleInputChange('barcode', food.barcode);
+  }
+
+  const goToSearchFood = () => {
+    router.push('/pantry/[pantryType]/searchFood');
+  };
+
+    useEffect(() => {
+        if (selectedItem) {
+            handleInputChange('barcode', selectedBarcode);
+            console.log(selectedItem)
+            handleInputChange('name', selectedItem);
+        }
+    }, [selectedItem]);
   return (
     <View style={styles.screenContainer}>
       <View style={styles.titleContainer}>
@@ -67,6 +123,33 @@ export default function AddToPantry() {
                   <Text>No Icon selected</Text>
                 )}
             </TouchableOpacity>
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Food Item</Text>
+            <TouchableOpacity
+              style={styles.foodItemSelect}
+              onPress={goToSearchFood} // Pass empty string, or some identifier
+            >
+              <Text style={styles.input}>
+                {formData.barcode ? formData.name + " - " + formData.barcode  : 'Select Food Item'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.inputGroup}>
+              <Text style={styles.label}>Expiry Date</Text>
+              <RNDateTimePicker
+                value={formData.expiryDate} // Required: The currently selected date
+                mode="date" // Optional: The mode (e.g., "date", "time", or "datetime")
+                display="default" // Optional: The display style (e.g., "default", "spinner", or "calendar")
+                onChange={(event, date) => {
+                  if (date) {
+                    
+                    handleInputChange('expiryDate', date.toDateString()); // Update the formData
+                  }
+                }}
+              />
           </View>
 
       <IconModal
@@ -178,24 +261,18 @@ titleContainer: {
       marginTop: 10,
       width: '50%',
   },
-  modalContainer: {
-      flex: 1,
-      backgroundColor: 'white',
-      padding: 20,
-      alignItems: 'center',
-      justifyContent: 'center'
+  
+  foodItemSelect: {
+    borderWidth: 1,
+    borderColor: COLORS.secondary,
+    backgroundColor: COLORS.background,
+    borderRadius: 8
   },
-  modalTitle: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      marginBottom: 20,
+  foodItemText: {
+    fontSize: 16,
+    color: COLORS.primary
   },
-  modalButton: {
-      padding: 10,
-      backgroundColor: '#3b82f6',
-      borderRadius: 8,
-      color: 'white',
-      marginTop: 10,
-  }
 });
+
+
 

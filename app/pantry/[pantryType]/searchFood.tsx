@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, FlatList, Image, ActivityIndicator, Keyboard } from 'react-native';
 // Import the interface
 import { COLORS } from '@/constants/theme';
@@ -6,6 +6,8 @@ import FoodDetailsModal from '@/components/FoodDetailsModal';
 import BarcodeScannerModal from '@/components/BarcodeModal';
 import { Ionicons } from '@expo/vector-icons';
 import BarcodeModal from '@/components/barcode';
+import { router, useLocalSearchParams } from 'expo-router';
+import { PantryContext, usePantry } from './addToPantry';
 
 
 export interface AddFoodItemForm {
@@ -28,7 +30,7 @@ export interface AddFoodItemForm {
     potassium?: string;
 }
 
-const FoodSearch = ({ onSelectFood }: { onSelectFood: (foodItem: AddFoodItemForm) => void }) => {
+const FoodSearch = () => {
     const [searchName, setSearchName] = useState('');
     const [searchResults, setSearchResults] = useState<AddFoodItemForm[]>([]);
     const [isSearching, setIsSearching] = useState(false); // Track loading state
@@ -38,6 +40,10 @@ const FoodSearch = ({ onSelectFood }: { onSelectFood: (foodItem: AddFoodItemForm
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isBarcodeScannerVisible, setIsBarcodeScannerVisible] = useState(false);
     const [selectedFoodItem, setSelectedFoodItem] = useState<AddFoodItemForm | null>(null);
+    const { selectedItem,setSelectedItem,selectedBarcode,setSelectedBarcode } = usePantry()
+
+
+
 
     const handleSearchByName = async (newPage: number = 1) => {
         if (!searchName.trim()) {
@@ -147,6 +153,15 @@ const FoodSearch = ({ onSelectFood }: { onSelectFood: (foodItem: AddFoodItemForm
         [selectSearchResult]
     );
 
+    const handleConfirmSelection = () => {
+        if (selectedFoodItem) {
+            setSelectedItem(selectedFoodItem.name || '' ); // Update context
+            setSelectedBarcode(selectedFoodItem.barcode || '')
+            router.back();
+        }
+        handleCloseModal();
+    };
+
     const keyExtractor = useCallback((item: AddFoodItemForm) => item.barcode || item.name, []);
 
     const loadMore = useCallback(() => {
@@ -175,6 +190,9 @@ const FoodSearch = ({ onSelectFood }: { onSelectFood: (foodItem: AddFoodItemForm
 
     return (
         <View style={styles.container}>
+            <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                      <Text style={styles.backButtonText}>Go Back</Text>
+                    </TouchableOpacity>
             <View style={styles.inputGroup}>
                 <Text style={styles.label}>Search Food Name</Text>
                 <TextInput
@@ -223,6 +241,7 @@ const FoodSearch = ({ onSelectFood }: { onSelectFood: (foodItem: AddFoodItemForm
                 isVisible={isModalVisible}
                 onClose={handleCloseModal}
                 foodItem={selectedFoodItem}
+                onConfirm={handleConfirmSelection} // Pass the confirm function
             />
 
             <BarcodeModal
@@ -235,8 +254,19 @@ const FoodSearch = ({ onSelectFood }: { onSelectFood: (foodItem: AddFoodItemForm
 };
 
 const styles = StyleSheet.create({
+    backButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: 'auto',
+    },
+      backButtonText: {
+        color: COLORS.primary,
+        textAlign: 'center',
+      },
     container: {
         padding: 20,
+        backgroundColor: COLORS.background,
+        minHeight:900
     },
     inputGroup: {
         marginBottom: 15,

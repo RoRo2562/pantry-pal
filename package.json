@@ -28,7 +28,8 @@
     "react-native": "0.79.2",
     "react-native-reanimated": "~3.17.4",
     "svix": "^1.64.1",
-    "@react-native-picker/picker": "2.11.0"
+    "@react-native-picker/picker": "2.11.0",
+    "@react-native-community/datetimepicker": "8.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

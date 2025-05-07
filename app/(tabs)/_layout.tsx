@@ -40,12 +40,5 @@ export default function TabLayout() {
         }
       }}/>
       
-      <Tabs.Screen name="searchFood" options={{
-        tabBarIcon: ({size,color}) => <Ionicons name="search" size={size} color={color}/>,
-        sceneStyle:{
-          backgroundColor: COLORS.background,
-          paddingTop: 0, paddingBottom: 50
-        }
-      }}/>
     </Tabs>;
 }
